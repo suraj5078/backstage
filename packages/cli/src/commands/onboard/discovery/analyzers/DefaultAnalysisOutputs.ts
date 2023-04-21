@@ -17,13 +17,13 @@
 import { AnalysisOutput, AnalysisOutputs } from './types';
 
 export class DefaultAnalysisOutputs implements AnalysisOutputs {
-  readonly #outputs: AnalysisOutput[] = [];
+  readonly #outputs = new Map<string, AnalysisOutput>();
 
   produce(output: AnalysisOutput) {
-    this.#outputs.push(output);
+    this.#outputs.set(output.entity.metadata.name, output);
   }
 
   list() {
-    return [...this.#outputs];
+    return Array.from(this.#outputs).map(([_, output]) => output);
   }
 }
