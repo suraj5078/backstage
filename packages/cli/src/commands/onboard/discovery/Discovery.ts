@@ -15,27 +15,16 @@
  */
 
 import { Entity } from '@backstage/catalog-model';
-import { AnalysisOutput, AnalysisOutputs, Analyzer } from './analyzers/types';
-import { Integration } from './integrations/types';
+import { Analyzer } from './analyzers/types';
+import { Provider } from './providers/types';
+import { DefaultAnalysisOutputs } from './analyzers/DefaultAnalysisOutputs';
 
-class DefaultAnalysisOutputs implements AnalysisOutputs {
-  readonly #outputs: AnalysisOutput[] = [];
-
-  produce(output: AnalysisOutput) {
-    this.#outputs.push(output);
-  }
-
-  list() {
-    return [...this.#outputs];
-  }
-}
-
-export class Analyzers {
-  readonly #integrations: Integration[] = [];
+export class Discovery {
+  readonly #providers: Provider[] = [];
   readonly #analyzers: Analyzer[] = [];
 
-  addIntegration(integration: Integration) {
-    this.#integrations.push(integration);
+  addProvider(provider: Provider) {
+    this.#providers.push(provider);
   }
 
   addAnalyzer(analyzer: Analyzer) {
@@ -46,13 +35,13 @@ export class Analyzers {
     console.log(`Running discovery for ${url}...`);
     const result: Entity[] = [];
 
-    for (const integration of this.#integrations) {
-      const repositories = await integration.discover(url);
+    for (const provider of this.#providers) {
+      const repositories = await provider.discover(url);
       if (repositories && repositories.length) {
         console.log(
           `Discovered ${
             repositories.length
-          } ${integration.type()}(s) for ${integration.name()}`,
+          } repositories for ${provider.name()}`,
         );
 
         for (const repository of repositories) {
@@ -75,13 +64,13 @@ export class Analyzers {
         }
 
         console.log(`Produced ${result.length || 'no'} entities`);
-
-        return {
-          entities: result,
-        };
       }
     }
 
-    throw new Error(`No integration found for ${url}`);
+    return {
+      entities: result,
+    };
+
+    // throw new Error(`No integration found for ${url}`);
   }
 }

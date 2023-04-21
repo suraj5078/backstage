@@ -14,24 +14,40 @@
  * limitations under the License.
  */
 
-import { Entity } from '@backstage/catalog-model';
-import { Repository } from '../providers/types';
+/**
+ * Abstraction for a single repository.
+ */
+export interface Repository {
+  url: string;
 
-export type AnalysisOutput = {
-  type: 'entity';
-  path: string;
-  entity: Entity;
-};
+  name: string;
 
-export interface AnalysisOutputs {
-  produce(output: AnalysisOutput): void;
-  list(): AnalysisOutput[];
+  owner: string;
+
+  description?: string;
+
+  files(): Promise<RepositoryFile[]>;
 }
 
-export interface Analyzer {
+/**
+ * Abstraction for a single repository file.
+ */
+export interface RepositoryFile {
+  /**
+   * The filepath of the data.
+   */
+  path: string;
+
+  /**
+   * The textual contents of the file.
+   */
+  text(): Promise<string>;
+}
+
+/**
+ * One integration that supports discovery of repositories.
+ */
+export interface Provider {
   name(): string;
-  analyzeRepository(options: {
-    repository: Repository;
-    output: AnalysisOutputs;
-  }): Promise<void>;
+  discover(url: string): Promise<Repository[] | false>;
 }

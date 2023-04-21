@@ -15,68 +15,62 @@
  */
 
 import chalk from 'chalk';
+import inquirer from 'inquirer';
 import { Task } from '../../lib/tasks';
-import { run } from './discovery/run';
+import { auth } from './auth';
+import { integrations } from './integrations';
+import { discover } from './discovery';
 
 export async function command(): Promise<void> {
-  // const answers = await inquirer.prompt<{
-  //   url: string;
-  // }>([
-  //   {
-  //     type: 'input',
-  //     name: 'url',
-  //     message: 'What is the URL of the GitHub org/repo that you want to slurp?',
-  //   },
-  // ]);
-
-  /*
-  TODO: Add verification that current directory is a Backstage app
-  */
-  const options = Object.assign(
+  const answers = await inquirer.prompt<{
+    shouldSetupAuth: boolean;
+    shouldSetupScaffolder: boolean;
+    shouldDiscoverEntities: boolean;
+  }>([
     {
-      url: 'https://github.com/backstage',
+      type: 'confirm',
+      name: 'shouldSetupAuth',
+      message: 'Do you want to set up Authentication for this project?',
+      default: true,
     },
-    //    answers,
-  );
-  await run(options);
+    {
+      type: 'confirm',
+      name: 'shouldSetupScaffolder',
+      message: 'Do you want to use Software Templates in this project?',
+      default: true,
+    },
+    {
+      type: 'confirm',
+      name: 'shouldDiscoverEntities',
+      message: 'Do you want to set up the Software Catalog in this project?',
+      default: true,
+    },
+  ]);
 
-  // const answers = await inquirer.prompt<{
-  //   shouldSetupAuth: boolean;
-  //   shouldSetupScaffolder: boolean;
-  // }>([
-  //   {
-  //     type: 'confirm',
-  //     name: 'shouldSetupAuth',
-  //     message: 'Do you want to set up Authentication for this project?',
-  //     default: true,
-  //   },
-  //   {
-  //     type: 'confirm',
-  //     name: 'shouldSetupScaffolder',
-  //     message: 'Do you want to use Software Templates in this project?',
-  //     default: true,
-  //   },
-  // ]);
+  const { shouldSetupAuth, shouldSetupScaffolder, shouldDiscoverEntities } =
+    answers;
 
-  // const { shouldSetupAuth, shouldSetupScaffolder } = answers;
+  let providerInfo;
+  if (shouldSetupAuth) {
+    providerInfo = await auth();
+  }
 
-  // let providerInfo;
-  // if (shouldSetupAuth) {
-  //   providerInfo = await auth();
-  // }
+  if (shouldSetupScaffolder) {
+    await integrations(providerInfo);
+  }
 
-  // if (shouldSetupScaffolder) {
-  //   await integrations(providerInfo);
-  // }
+  if (shouldDiscoverEntities) {
+    await discover(providerInfo);
+  }
 
-  // if (!shouldSetupAuth && !shouldSetupScaffolder) {
-  //   Task.log(
-  //     chalk.yellow(
-  //       'If you change your mind, feel free to re-run this command.',
-  //     ),
-  //   );
-  //   return;
-  // }
+  if (!shouldSetupAuth && !shouldSetupScaffolder && !shouldDiscoverEntities) {
+    Task.log(
+      chalk.yellow(
+        'If you change your mind, feel free to re-run this command.',
+      ),
+    );
+    return;
+  }
 
   Task.log();
   Task.log(

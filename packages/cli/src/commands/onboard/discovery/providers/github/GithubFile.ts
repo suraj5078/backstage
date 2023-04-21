@@ -14,24 +14,22 @@
  * limitations under the License.
  */
 
-import { Entity } from '@backstage/catalog-model';
-import { Repository } from '../providers/types';
+import { RepositoryFile } from '../types';
 
-export type AnalysisOutput = {
-  type: 'entity';
-  path: string;
-  entity: Entity;
-};
+export class GithubFile implements RepositoryFile {
+  readonly #path: string;
+  readonly #content: string;
 
-export interface AnalysisOutputs {
-  produce(output: AnalysisOutput): void;
-  list(): AnalysisOutput[];
-}
+  constructor(path: string, content: string) {
+    this.#path = path;
+    this.#content = content;
+  }
 
-export interface Analyzer {
-  name(): string;
-  analyzeRepository(options: {
-    repository: Repository;
-    output: AnalysisOutputs;
-  }): Promise<void>;
+  get path(): string {
+    return this.#path;
+  }
+
+  async text(): Promise<string> {
+    return this.#content;
+  }
 }

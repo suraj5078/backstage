@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Repository } from '../integrations/types';
+import { Repository } from '../providers/types';
 import { AnalysisOutputs, Analyzer } from './types';
 
 /**

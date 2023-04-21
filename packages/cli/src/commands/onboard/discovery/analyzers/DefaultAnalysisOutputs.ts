@@ -14,24 +14,16 @@
  * limitations under the License.
  */
 
-import { Entity } from '@backstage/catalog-model';
-import { Repository } from '../providers/types';
+import { AnalysisOutput, AnalysisOutputs } from './types';
 
-export type AnalysisOutput = {
-  type: 'entity';
-  path: string;
-  entity: Entity;
-};
+export class DefaultAnalysisOutputs implements AnalysisOutputs {
+  readonly #outputs: AnalysisOutput[] = [];
 
-export interface AnalysisOutputs {
-  produce(output: AnalysisOutput): void;
-  list(): AnalysisOutput[];
-}
+  produce(output: AnalysisOutput) {
+    this.#outputs.push(output);
+  }
 
-export interface Analyzer {
-  name(): string;
-  analyzeRepository(options: {
-    repository: Repository;
-    output: AnalysisOutputs;
-  }): Promise<void>;
+  list() {
+    return [...this.#outputs];
+  }
 }

@@ -19,8 +19,8 @@ import {
   ComponentEntity,
 } from '@backstage/catalog-model';
 import z from 'zod';
-import { Repository, RepositoryFile } from '../integrations/types';
 import { AnalysisOutputs, Analyzer } from './types';
+import { Repository, RepositoryFile } from '../providers/types';
 
 /**
  * Looks for package.json files and extracts information out of them.

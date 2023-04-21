@@ -14,41 +14,25 @@
  * limitations under the License.
  */
 
-/**
- * Abstraction for a single repository.
- */
-export interface Repository {
-  url: string;
-
-  name: string;
-
-  owner: string;
-
-  description?: string;
-
-  files(): Promise<RepositoryFile[]>;
-}
+import { RepositoryFile } from '../types';
 
 /**
- * Abstraction for a single repository file.
+ * A single file in a GitLab repository.
  */
-export interface RepositoryFile {
-  /**
-   * The filepath of the data.
-   */
-  path: string;
+export class GitlabFile implements RepositoryFile {
+  readonly #path: string;
+  readonly #content: string;
 
-  /**
-   * The textual contents of the file.
-   */
-  text(): Promise<string>;
-}
+  constructor(path: string, content: string) {
+    this.#path = path;
+    this.#content = content;
+  }
 
-/**
- * One integration that supports discovery of repositories.
- */
-export interface Integration {
-  name(): string;
-  type(): string;
-  discover(url: string): Promise<Repository[] | false>;
+  get path(): string {
+    return this.#path;
+  }
+
+  async text(): Promise<string> {
+    return this.#content;
+  }
 }

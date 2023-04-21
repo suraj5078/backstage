@@ -22,131 +22,21 @@ import {
 } from '@backstage/integration';
 import { graphql } from '@octokit/graphql';
 import parseGitUrl from 'git-url-parse';
-import { queryWithPaging, RepositoryResponse } from '../graphql';
-import { Integration, Repository, RepositoryFile } from './types';
-import {
-  Repository as GraphqlRepository,
-  Tree as GraphqlTree,
-  Blob as GraphqlBlob,
-} from '@octokit/graphql-schema';
+import { queryWithPaging, RepositoryResponse } from './graphql';
+import { Provider, Repository } from '../types';
+import { GithubRepository } from './GithubRepository';
 
-/**
- * A single file in a GitHub repository.
- */
-class GithubFile implements RepositoryFile {
-  readonly #path: string;
-  readonly #content: string;
-
-  constructor(path: string, content: string) {
-    this.#path = path;
-    this.#content = content;
-  }
-
-  get path(): string {
-    return this.#path;
-  }
-
-  async text(): Promise<string> {
-    return this.#content;
-  }
-}
-
-/**
- * A GitHub repository.
- */
-class GithubRepository implements Repository {
-  readonly #client: typeof graphql;
-  readonly #repo: RepositoryResponse;
-  readonly #org: string;
-  #files: Promise<RepositoryFile[]> | undefined;
-
-  constructor(client: typeof graphql, repo: RepositoryResponse, org: string) {
-    this.#client = client;
-    this.#repo = repo;
-    this.#org = org;
-  }
-
-  get url(): string {
-    return this.#repo.url;
-  }
-
-  get name(): string {
-    return this.#repo.name;
-  }
-
-  get owner(): string {
-    return this.#org;
-  }
-
-  get description(): string | undefined {
-    return this.#repo.description;
-  }
-
-  files(): Promise<RepositoryFile[]> {
-    this.#files ??= this.#doGetFiles();
-    return this.#files;
-  }
-
-  async #doGetFiles(): Promise<RepositoryFile[]> {
-    const query = `query RepoFiles($owner: String!, $name: String!) {
-      repository(owner: $owner, name: $name) {
-        object(expression: "HEAD:") {
-          ... on Tree {
-            entries {
-              name
-              type
-              object {
-                ... on Blob {
-                  byteSize
-                  text
-                  isBinary
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-    `;
-
-    const response = await this.#client<{ repository: GraphqlRepository }>(
-      query,
-      {
-        name: this.#repo.name,
-        owner: this.#org,
-      },
-    );
-
-    const tree = response.repository.object;
-    if (tree) {
-      return (
-        (tree as GraphqlTree).entries
-          ?.filter(
-            e => e.type === 'blob' && !(e.object as GraphqlBlob).isBinary,
-          )
-          .map(
-            e => new GithubFile(e.name, (e.object as GraphqlBlob).text ?? ''),
-          ) ?? []
-      );
-    }
-    return [];
-  }
-}
-
-/**
- * Integration for GitHub.
- */
-export class GithubIntegration implements Integration {
+export class GithubDiscoveryProvider implements Provider {
   readonly #envToken: string | undefined;
   readonly #scmIntegrations: ScmIntegrations;
   readonly #credentialsProvider: GithubCredentialsProvider;
 
-  static fromConfig(config: Config): GithubIntegration {
+  static fromConfig(config: Config): GithubDiscoveryProvider {
     const envToken = process.env.GITHUB_TOKEN || undefined;
     const scmIntegrations = ScmIntegrations.fromConfig(config);
     const credentialsProvider =
       DefaultGithubCredentialsProvider.fromIntegrations(scmIntegrations);
-    return new GithubIntegration(
+    return new GithubDiscoveryProvider(
       envToken,
       scmIntegrations,
       credentialsProvider,
@@ -165,10 +55,6 @@ export class GithubIntegration implements Integration {
 
   name(): string {
     return 'GitHub';
-  }
-
-  type(): string {
-    return 'Repository';
   }
 
   async discover(url: string): Promise<Repository[] | false> {
