@@ -79,6 +79,7 @@ export class GithubDiscoveryProvider implements Provider {
     const { repositories } = await this.#getOrganizationRepositories(
       client,
       org,
+      url,
     );
 
     return repositories.map(repo => new GithubRepository(client, repo, org));
@@ -110,6 +111,7 @@ export class GithubDiscoveryProvider implements Provider {
   async #getOrganizationRepositories(
     client: typeof graphql,
     org: string,
+    url: string,
   ): Promise<{ repositories: RepositoryResponse[] }> {
     const query = `
     query repositories($org: String!, $cursor: String) {
@@ -153,7 +155,9 @@ export class GithubDiscoveryProvider implements Provider {
     );
 
     return {
-      repositories: repositories.filter(r => !r.isArchived && !r.isFork),
+      repositories: repositories.filter(
+        repo => repo.url.startsWith(url) && !repo.isArchived && !repo.isFork,
+      ),
     };
   }
 }
