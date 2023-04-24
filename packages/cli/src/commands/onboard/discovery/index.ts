@@ -17,6 +17,7 @@
 import fs from 'fs-extra';
 import yaml from 'yaml';
 import inquirer from 'inquirer';
+import chalk from 'chalk';
 import { loadCliConfig } from '../../../lib/config';
 import { updateConfigFile } from '../config';
 import { APP_CONFIG_FILE, EXAMPLE_CATALOG_FILE } from '../files';
@@ -33,35 +34,44 @@ export async function discover(providerInfo?: {
   provider: string;
   answers: GitHubAnswers | GitLabAnswers;
 }) {
+  Task.log(`
+    Scan an existing repository and attempt to create Software Catalog entities based on the information in it.
+    You will need to select which SCM (Source Code Management) provider you are using, 
+    and then which repository or organization you want to scan.
+
+    This will generate a new file in the root of your project containing discovered entities,
+    which will be included in the Software Catalog when you start up Backstage next time.
+  `);
+
   const answers = await inquirer.prompt<{
     provider: string;
-    shouldUsePreviousProvider: boolean;
     url: string;
   }>([
     {
-      type: 'confirm',
-      name: 'shouldUsePreviousProvider',
-      message: `Do you want to keep using ${providerInfo?.provider} as your provider when setting up Software Catalog?`,
-      when: () => providerInfo?.provider,
-    },
-    {
       type: 'list',
       name: 'provider',
-      message: 'Please select an provider:',
+      message: 'Please select which SCM providers you want to use:',
       choices: ['GitHub', 'GitLab'],
-      when: ({ shouldUsePreviousProvider }) => !shouldUsePreviousProvider,
+      default: providerInfo?.provider,
     },
     {
       type: 'input',
       name: 'url',
-      message: 'What is your URL',
-      validate: (input: string) => Boolean(new URL(input)),
+      message: `Which repository do you want to scan?`,
+      filter: (input, { provider }) => {
+        if (provider === 'GitLab') {
+          return `https://gitlab.com/${input}`;
+        }
+        if (provider === 'GitHub') {
+          return `https://github.com/${input}`;
+        }
+        return false;
+      },
     },
   ]);
 
   const { fullConfig: config } = await loadCliConfig({
-    args: [], // process.argv.slice(1),
-    // fromPackage: '@backstage/cli',
+    args: [],
     mockEnv: true,
     fullVisibility: true,
   });
@@ -82,27 +92,35 @@ export async function discover(providerInfo?: {
   const { entities } = await discovery.run(answers.url);
 
   if (!entities.length) {
-    Task.log('Nothing found unfortunately');
+    Task.log(
+      chalk.yellow(`
+      We could not find enough information to be able to generate any Software Catalog entities for you.
+      Perhaps you can try again with a different repository?`),
+    );
     return;
   }
 
-  const payload: string[] = [];
-  for (const entity of entities) {
-    Task.forItem('Adding', entity.metadata.name, async () => {
-      payload.push(`---\n${yaml.stringify(entity)}`);
-    });
-  }
-  await fs.writeFile(EXAMPLE_CATALOG_FILE, payload.join());
-  Task.log('Wrote example.yaml');
-
-  await updateConfigFile(APP_CONFIG_FILE, {
-    catalog: {
-      locations: [
-        {
-          type: 'file',
-          target: EXAMPLE_CATALOG_FILE,
-        },
-      ],
-    },
+  await Task.forItem('Creating', EXAMPLE_CATALOG_FILE, async () => {
+    const payload: string[] = [];
+    for (const entity of entities) {
+      payload.push('---\n', yaml.stringify(entity));
+    }
+    await fs.writeFile(EXAMPLE_CATALOG_FILE, payload.join(''));
   });
+
+  await Task.forItem(
+    'Updating',
+    APP_CONFIG_FILE,
+    async () =>
+      await updateConfigFile(APP_CONFIG_FILE, {
+        catalog: {
+          locations: [
+            {
+              type: 'file',
+              target: EXAMPLE_CATALOG_FILE,
+            },
+          ],
+        },
+      }),
+  );
 }

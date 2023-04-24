@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
+import chalk from 'chalk';
 import { Entity } from '@backstage/catalog-model';
 import { Analyzer } from './analyzers/types';
 import { Provider } from './providers/types';
 import { DefaultAnalysisOutputs } from './analyzers/DefaultAnalysisOutputs';
+import { Task } from '../../../lib/tasks';
 
 export class Discovery {
   readonly #providers: Provider[] = [];
@@ -32,45 +34,42 @@ export class Discovery {
   }
 
   async run(url: string): Promise<{ entities: Entity[] }> {
-    console.log(`Running discovery for ${url}...`);
+    Task.log(`Running discovery for ${chalk.cyan(url)}`);
     const result: Entity[] = [];
 
     for (const provider of this.#providers) {
       const repositories = await provider.discover(url);
       if (repositories && repositories.length) {
-        console.log(
-          `Discovered ${
-            repositories.length
-          } repositories for ${provider.name()}`,
+        Task.log(
+          `Discovered ${chalk.cyan(
+            repositories.length,
+          )} repositories for ${chalk.cyan(provider.name())}`,
         );
 
         for (const repository of repositories) {
-          console.log(`  Analyzing ${repository.name}...`);
+          await Task.forItem('Analyzing', repository.name, async () => {
+            const output = new DefaultAnalysisOutputs();
+            for (const analyzer of this.#analyzers) {
+              await analyzer.analyzeRepository({ repository, output });
+            }
 
-          const output = new DefaultAnalysisOutputs();
-          for (const analyzer of this.#analyzers) {
-            await analyzer.analyzeRepository({ repository, output });
-          }
+            const entities = output
+              .list()
+              .filter(o => o.type === 'entity')
+              .map(o => o.entity);
 
-          const entities = output
-            .list()
-            .filter(o => o.type === 'entity')
-            .map(o => o.entity);
-
-          if (entities.length) {
-            console.log(`    Found ${entities.length} entities`);
-            result.push(...entities);
-          }
+            if (entities.length) {
+              result.push(...entities);
+            }
+          });
         }
 
-        console.log(`Produced ${result.length || 'no'} entities`);
+        Task.log(`Produced ${chalk.cyan(result.length || 'no')} entities`);
       }
     }
 
     return {
       entities: result,
     };
-
-    // throw new Error(`No integration found for ${url}`);
   }
 }
