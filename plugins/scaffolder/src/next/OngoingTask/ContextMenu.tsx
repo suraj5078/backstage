@@ -22,28 +22,45 @@ import {
   MenuItem,
   MenuList,
   Popover,
+  useTheme,
 } from '@material-ui/core';
+import { useAsync } from '@react-hookz/web';
+import Cancel from '@material-ui/icons/Cancel';
 import Retry from '@material-ui/icons/Repeat';
 import Toc from '@material-ui/icons/Toc';
 import MoreVert from '@material-ui/icons/MoreVert';
 import React, { useState } from 'react';
+import { useApi } from '@backstage/core-plugin-api';
+import { scaffolderApiRef } from '@backstage/plugin-scaffolder-react';
 
 type ContextMenuProps = {
+  cancelEnabled?: boolean;
   logsVisible?: boolean;
-  onToggleLogs?: (state: boolean) => void;
   onStartOver?: () => void;
+  onToggleLogs?: (state: boolean) => void;
+  taskId?: string;
 };
 
-const useStyles = makeStyles((theme: BackstageTheme) => ({
+const useStyles = makeStyles<BackstageTheme, { fontColor: string }>(() => ({
   button: {
-    color: theme.palette.common.white,
+    color: ({ fontColor }) => fontColor,
   },
 }));
 
 export const ContextMenu = (props: ContextMenuProps) => {
-  const { logsVisible, onToggleLogs, onStartOver } = props;
-  const classes = useStyles();
+  const { cancelEnabled, logsVisible, onStartOver, onToggleLogs, taskId } =
+    props;
+  const { getPageTheme } = useTheme<BackstageTheme>();
+  const pageTheme = getPageTheme({ themeId: 'website' });
+  const classes = useStyles({ fontColor: pageTheme.fontColor });
+  const scaffolderApi = useApi(scaffolderApiRef);
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement>();
+
+  const [{ status: cancelStatus }, { execute: cancel }] = useAsync(async () => {
+    if (taskId) {
+      await scaffolderApi.cancelTask(taskId);
+    }
+  });
 
   return (
     <>
@@ -55,7 +72,6 @@ export const ContextMenu = (props: ContextMenuProps) => {
           setAnchorEl(event.currentTarget);
         }}
         data-testid="menu-button"
-        color="inherit"
         className={classes.button}
       >
         <MoreVert />
@@ -79,6 +95,16 @@ export const ContextMenu = (props: ContextMenuProps) => {
               <Retry fontSize="small" />
             </ListItemIcon>
             <ListItemText primary="Start Over" />
+          </MenuItem>
+          <MenuItem
+            onClick={cancel}
+            disabled={!cancelEnabled || cancelStatus !== 'not-executed'}
+            data-testid="cancel-task"
+          >
+            <ListItemIcon>
+              <Cancel fontSize="small" />
+            </ListItemIcon>
+            <ListItemText primary="Cancel" />
           </MenuItem>
         </MenuList>
       </Popover>

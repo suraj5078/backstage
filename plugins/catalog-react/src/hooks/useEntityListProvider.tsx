@@ -40,6 +40,7 @@ import {
   EntityTextFilter,
   EntityTypeFilter,
   UserListFilter,
+  EntityNamespaceFilter,
 } from '../filters';
 import { EntityFilter } from '../types';
 import { reduceCatalogFilters, reduceEntityFilters } from '../utils';
@@ -56,6 +57,7 @@ export type DefaultEntityFilters = {
   text?: EntityTextFilter;
   orphan?: EntityOrphanFilter;
   error?: EntityErrorFilter;
+  namespace?: EntityNamespaceFilter;
 };
 
 /** @public */
@@ -161,8 +163,9 @@ export const EntityListProvider = <EntityFilters extends DefaultEntityFilters>(
 
       const queryParams = Object.keys(requestedFilters).reduce(
         (params, key) => {
-          const filter: EntityFilter | undefined =
-            requestedFilters[key as keyof EntityFilters];
+          const filter = requestedFilters[key as keyof EntityFilters] as
+            | EntityFilter
+            | undefined;
           if (filter?.toQueryValue) {
             params[key] = filter.toQueryValue();
           }

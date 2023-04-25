@@ -25,6 +25,7 @@ import type {
   KubernetesRequestBody,
   ObjectsByEntityResponse,
 } from '@backstage/plugin-kubernetes-common';
+import { Config } from '@backstage/config';
 
 /**
  *
@@ -104,6 +105,8 @@ export type KubernetesObjectTypes =
   | 'customresources'
   | 'statefulsets'
   | 'daemonsets';
+// If updating this list, also make sure to update
+// `objectTypes` and `apiVersionOverrides` in config.d.ts!
 
 /**
  * Used to load cluster details from different sources
@@ -240,6 +243,7 @@ export interface AWSClusterDetails extends ClusterDetails {
  */
 export interface KubernetesObjectsProviderOptions {
   logger: Logger;
+  config: Config;
   fetcher: KubernetesFetcher;
   serviceLocator: KubernetesServiceLocator;
   customResources: CustomResource[];

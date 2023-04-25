@@ -75,6 +75,7 @@ export default async function createPlugin(
     logger: env.logger,
     config: env.config,
     catalogApi,
+    permissions: env.permissions,
   }).build();
   return router;
 }
@@ -171,11 +172,6 @@ export default async function createPlugin(
   return router;
 }
 ```
-
-## Running Backstage locally
-
-Start the frontend and the backend app by
-[running Backstage locally](../../getting-started/running-backstage-locally.md).
 
 ## Configuration
 

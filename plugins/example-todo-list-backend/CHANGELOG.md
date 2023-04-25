@@ -1,5 +1,60 @@
 # @internal/plugin-todo-list-backend
 
+## 1.0.12
+
+### Patch Changes
+
+- Updated dependencies
+  - @backstage/backend-common@0.18.4
+  - @backstage/plugin-auth-node@0.2.13
+  - @backstage/backend-plugin-api@0.5.1
+  - @backstage/config@1.0.7
+  - @backstage/errors@1.1.5
+
+## 1.0.12-next.2
+
+### Patch Changes
+
+- Updated dependencies
+  - @backstage/backend-common@0.18.4-next.2
+  - @backstage/backend-plugin-api@0.5.1-next.2
+  - @backstage/config@1.0.7
+  - @backstage/errors@1.1.5
+  - @backstage/plugin-auth-node@0.2.13-next.2
+
+## 1.0.12-next.1
+
+### Patch Changes
+
+- Updated dependencies
+  - @backstage/backend-common@0.18.4-next.1
+  - @backstage/backend-plugin-api@0.5.1-next.1
+  - @backstage/config@1.0.7
+  - @backstage/errors@1.1.5
+  - @backstage/plugin-auth-node@0.2.13-next.1
+
+## 1.0.12-next.0
+
+### Patch Changes
+
+- Updated dependencies
+  - @backstage/backend-common@0.18.4-next.0
+  - @backstage/config@1.0.7
+  - @backstage/backend-plugin-api@0.5.1-next.0
+  - @backstage/errors@1.1.5
+  - @backstage/plugin-auth-node@0.2.13-next.0
+
+## 1.0.11
+
+### Patch Changes
+
+- Updated dependencies
+  - @backstage/plugin-auth-node@0.2.12
+  - @backstage/backend-common@0.18.3
+  - @backstage/errors@1.1.5
+  - @backstage/backend-plugin-api@0.5.0
+  - @backstage/config@1.0.7
+
 ## 1.0.11-next.2
 
 ### Patch Changes

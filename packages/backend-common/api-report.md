@@ -6,6 +6,7 @@
 /// <reference types="node" />
 /// <reference types="webpack-env" />
 
+import { AppConfig } from '@backstage/config';
 import { AwsCredentialsManager } from '@backstage/integration-aws-node';
 import { AwsS3Integration } from '@backstage/integration';
 import { AzureIntegration } from '@backstage/integration';
@@ -301,6 +302,7 @@ export class FetchUrlReader implements UrlReader {
 export type FromReadableArrayOptions = Array<{
   data: Readable;
   path: string;
+  lastModifiedAt?: Date;
 }>;
 
 // @public
@@ -532,6 +534,7 @@ export const legacyPlugin: (
 export function loadBackendConfig(options: {
   logger: LoggerService;
   remote?: LoadConfigOptionsRemote;
+  additionalConfigs?: AppConfig[];
   argv: string[];
 }): Promise<Config>;
 
@@ -635,6 +638,7 @@ export class ReadUrlResponseFactory {
 // @public
 export type ReadUrlResponseFactoryFromStreamOptions = {
   etag?: string;
+  lastModifiedAt?: Date;
 };
 
 // @public
