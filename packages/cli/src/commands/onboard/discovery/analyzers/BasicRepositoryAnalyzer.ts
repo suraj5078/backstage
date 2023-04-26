@@ -22,16 +22,16 @@ import { Repository } from '../providers/types';
  * Naive analyzer that produces a single entity that represents the repository
  * as a whole.
  */
-export class BasicRepositoryEntityAnalyzer implements Analyzer {
+export class BasicRepositoryAnalyzer implements Analyzer {
   name(): string {
-    return BasicRepositoryEntityAnalyzer.name;
+    return BasicRepositoryAnalyzer.name;
   }
 
   async analyzeRepository(options: {
     repository: Repository;
     output: AnalysisOutputs;
   }): Promise<void> {
-    const dummy: ComponentEntity = {
+    const entity: ComponentEntity = {
       apiVersion: 'backstage.io/v1alpha1',
       kind: 'Component',
       metadata: {
@@ -50,7 +50,7 @@ export class BasicRepositoryEntityAnalyzer implements Analyzer {
     options.output.produce({
       type: 'entity',
       path: '/',
-      entity: dummy,
+      entity: entity,
     });
   }
 }

@@ -22,9 +22,6 @@ import z from 'zod';
 import { AnalysisOutputs, Analyzer } from './types';
 import { Repository, RepositoryFile } from '../providers/types';
 
-/**
- * Looks for package.json files and extracts information out of them.
- */
 export class PackageJsonAnalyzer implements Analyzer {
   name(): string {
     return PackageJsonAnalyzer.name;
@@ -36,7 +33,7 @@ export class PackageJsonAnalyzer implements Analyzer {
   }): Promise<void> {
     const files = await options.repository.files();
 
-    const packageJson = files.filter(file => file.path === 'package.json')[0];
+    const packageJson = files.find(file => file.path === 'package.json');
     if (!packageJson) {
       return;
     }
@@ -65,11 +62,34 @@ export class PackageJsonAnalyzer implements Analyzer {
         },
       },
       spec: {
-        type: 'service',
+        type: 'website',
         lifecycle: 'production',
         owner: 'user:guest',
       },
     };
+
+    const decorate = options.output
+      .list()
+      .find(entry => entry.entity.metadata.name === name);
+
+    if (decorate) {
+      decorate.entity.spec = {
+        ...decorate.entity.spec,
+        type: 'website',
+      };
+
+      decorate.entity.metadata.tags = [
+        ...(decorate.entity.metadata.tags ?? []),
+        'javascript',
+      ];
+
+      decorate.entity.metadata.annotations = {
+        ...decorate.entity.metadata.annotations,
+        [ANNOTATION_SOURCE_LOCATION]: `url:${options.repository.url}`,
+      };
+
+      return;
+    }
 
     options.output.produce({
       type: 'entity',

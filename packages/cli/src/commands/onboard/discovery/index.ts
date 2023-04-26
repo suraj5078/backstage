@@ -22,12 +22,11 @@ import { loadCliConfig } from '../../../lib/config';
 import { updateConfigFile } from '../config';
 import { APP_CONFIG_FILE, EXAMPLE_CATALOG_FILE } from '../files';
 import { Discovery } from './Discovery';
-import { BasicRepositoryEntityAnalyzer } from './analyzers/BasicRepositoryEntityAnalyzer';
+import { BasicRepositoryAnalyzer } from './analyzers/BasicRepositoryAnalyzer';
 import { PackageJsonAnalyzer } from './analyzers/PackageJsonAnalyzer';
 import { GithubDiscoveryProvider } from './providers/github/GithubDiscoveryProvider';
 import { GitlabDiscoveryProvider } from './providers/gitlab/GitlabDiscoveryProvider';
 import { GitHubAnswers, GitLabAnswers } from '../auth';
-import { CodeownersAnalyzer } from './analyzers/CodeownersAnalyzer';
 import { Task } from '../../../lib/tasks';
 
 export async function discover(providerInfo?: {
@@ -101,9 +100,8 @@ export async function discover(providerInfo?: {
     discovery.addProvider(GitlabDiscoveryProvider.fromConfig(config));
   }
 
-  discovery.addAnalyzer(new BasicRepositoryEntityAnalyzer());
+  discovery.addAnalyzer(new BasicRepositoryAnalyzer());
   discovery.addAnalyzer(new PackageJsonAnalyzer());
-  discovery.addAnalyzer(new CodeownersAnalyzer());
 
   const { entities } = await discovery.run(answers.url);
 
