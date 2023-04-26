@@ -41,23 +41,34 @@ export async function discover(providerInfo?: {
 
     This will generate a new file in the root of your project containing discovered entities,
     which will be included in the Software Catalog when you start up Backstage next time.
+
+    Note that this command requires a token, which can be either added through the integration config or
+    provided as an environmental variable.
   `);
 
   const answers = await inquirer.prompt<{
+    shouldContinue: boolean;
     provider: string;
     url: string;
   }>([
     {
+      type: 'confirm',
+      name: 'shouldContinue',
+      message: 'Do you want to continue?',
+    },
+    {
       type: 'list',
       name: 'provider',
-      message: 'Please select which SCM providers you want to use:',
+      message: 'Please select which SCM provider you want to use:',
       choices: ['GitHub', 'GitLab'],
       default: providerInfo?.provider,
+      when: ({ shouldContinue }) => shouldContinue,
     },
     {
       type: 'input',
       name: 'url',
       message: `Which repository do you want to scan?`,
+      when: ({ shouldContinue }) => shouldContinue,
       filter: (input, { provider }) => {
         if (provider === 'GitLab') {
           return `https://gitlab.com/${input}`;
@@ -70,11 +81,16 @@ export async function discover(providerInfo?: {
     },
   ]);
 
-  const { fullConfig: config } = await loadCliConfig({
-    args: [],
-    mockEnv: true,
-    fullVisibility: true,
-  });
+  if (!answers.shouldContinue) {
+    Task.log(
+      chalk.yellow(
+        'If you change your mind, feel free to re-run this command.',
+      ),
+    );
+    return;
+  }
+
+  const { fullConfig: config } = await loadCliConfig({ args: [] });
 
   const discovery = new Discovery();
 
