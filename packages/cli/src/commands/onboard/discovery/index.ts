@@ -34,7 +34,8 @@ export async function discover(providerInfo?: {
   answers: GitHubAnswers | GitLabAnswers;
 }) {
   Task.log(`
-    Scan an existing repository and attempt to create Software Catalog entities based on the information in it.
+    Would you like to scan for - and create - Software Catalog entities?
+
     You will need to select which SCM (Source Code Management) provider you are using, 
     and then which repository or organization you want to scan.
 

@@ -42,7 +42,8 @@ export async function command(): Promise<void> {
     {
       type: 'confirm',
       name: 'shouldDiscoverEntities',
-      message: 'Do you want to set up the Software Catalog in this project?',
+      message:
+        'Do you want to discover entities and add them to the Software Catalog?',
       default: true,
     },
   ]);
