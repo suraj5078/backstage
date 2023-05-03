@@ -18,6 +18,11 @@ import { ScmIntegrationRegistry } from '../registry';
 import { SingleInstanceGitlabCredentialsProvider } from './SingleInstanceGitlabCredentialsProvider';
 import { GitlabCredentials, GitlabCredentialsProvider } from './types';
 
+/**
+ * Handles the creation and caching of credentials for GitLab integrations.
+ *
+ * @public
+ */
 export class DefaultGitlabCredentialsProvider
   implements GitlabCredentialsProvider
 {
