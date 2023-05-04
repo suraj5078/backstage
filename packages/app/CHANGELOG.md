@@ -1,5 +1,24 @@
 # example-app
 
+## 0.2.83-next.2
+
+### Patch Changes
+
+- Updated dependencies
+  - @backstage/plugin-badges@0.2.42-next.2
+  - @backstage/plugin-search-react@1.6.0-next.2
+  - @backstage/plugin-explore@0.4.3-next.2
+  - @backstage/plugin-playlist@0.1.9-next.2
+  - @backstage/plugin-search@1.3.0-next.2
+  - @backstage/plugin-stack-overflow@0.1.15-next.2
+  - @backstage/plugin-techdocs@1.6.2-next.2
+  - @backstage/plugin-api-docs@0.9.3-next.2
+  - @internal/plugin-catalog-customized@0.0.10-next.2
+  - @backstage/plugin-catalog-graph@0.2.30-next.1
+  - @backstage/plugin-scaffolder@1.13.1-next.1
+  - @backstage/plugin-scaffolder-react@1.3.1-next.1
+  - @backstage/plugin-techdocs-module-addons-contrib@1.0.13-next.1
+
 ## 0.2.83-next.1
 
 ### Patch Changes

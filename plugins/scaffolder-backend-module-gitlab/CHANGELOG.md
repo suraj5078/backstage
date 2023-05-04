@@ -1,5 +1,11 @@
 # @backstage/plugin-scaffolder-backend-module-gitlab
 
+## 0.2.0-next.2
+
+### Minor Changes
+
+- 439e2986be1: Add a new scaffolder action for gitlab to ensure a group exists
+
 ## 0.1.1-next.1
 
 ### Patch Changes

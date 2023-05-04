@@ -1,5 +1,12 @@
 # @backstage/plugin-catalog-backend
 
+## 1.9.1-next.2
+
+### Patch Changes
+
+- ce8d203235b: Ensure that entity cache state is only written to the database when actually changed
+- 3587a968dcd: Fixed a bug in the `queryEntities` endpoint that was causing filtered entities to be included in cursor requests.
+
 ## 1.9.1-next.1
 
 ### Patch Changes

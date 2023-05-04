@@ -1,5 +1,11 @@
 # @backstage/backend-openapi-utils
 
+## 0.0.2-next.1
+
+### Patch Changes
+
+- 021cfbb5152: Corrected resolution of parameter nested schema to use central schemas.
+
 ## 0.0.2-next.0
 
 ### Patch Changes

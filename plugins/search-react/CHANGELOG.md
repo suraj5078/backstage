@@ -1,5 +1,11 @@
 # @backstage/plugin-search-react
 
+## 1.6.0-next.2
+
+### Patch Changes
+
+- adb31096bc2: Fix text-overflow UI issue for Lifecycle spans in SearchFilter checkbox labels.
+
 ## 1.6.0-next.1
 
 ### Patch Changes

@@ -1,5 +1,12 @@
 # @backstage/plugin-techdocs
 
+## 1.6.2-next.2
+
+### Patch Changes
+
+- Updated dependencies
+  - @backstage/plugin-search-react@1.6.0-next.2
+
 ## 1.6.2-next.1
 
 ### Patch Changes
