@@ -21,7 +21,7 @@ pipeline {
         stage('Test') {
             steps {
                 sh ''' #!/bin/bash
-                echo ===> echo test case runs Test by vipin
+                echo ===> echo test case runs
                 '''
             }
         }
