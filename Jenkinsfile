@@ -28,7 +28,7 @@ pipeline {
         stage('deploy') {
             steps {
                 sh ''' #!/bin/bash
-                echo ===> deploy stage
+                echo ===> Deploy stage complete
                 '''
             }
         }
