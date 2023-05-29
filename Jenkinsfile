@@ -7,7 +7,7 @@ pipeline {
         stage('package creation') {
             steps {
                 sh ''' #!/bin/bash
-                echo ===> package creation on frontend server
+                echo ===> package creation on server
                 '''
             }
         }
@@ -21,7 +21,7 @@ pipeline {
         stage('Test') {
             steps {
                 sh ''' #!/bin/bash
-                echo ===> echo test case runs
+                echo ===> test case runs
                 '''
             }
         }
